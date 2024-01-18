@@ -39,8 +39,7 @@ def find_break_and_continue(file_path):
     for line_index, line in enumerate(lines):
         if '#include' in line:
             continue
-        line = line.strip()
-        if line.startswith('break'):
+        if line.strip().startswith('break'):
             start_index = line.find('break')
             end_index = start_index + len('break')
             break_and_continue_info.append({
@@ -49,7 +48,7 @@ def find_break_and_continue(file_path):
                 'end_index': end_index,
                 'statement': 'break'
             })
-        elif line.startswith('continue'):
+        elif line.strip().startswith('continue'):
             start_index = line.find('continue')
             end_index = start_index + len('continue')
             break_and_continue_info.append({
