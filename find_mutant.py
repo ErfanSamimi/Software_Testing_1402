@@ -12,6 +12,8 @@ def find_operators(file_path):
     operator_info = []
 
     for line_index, line in enumerate(lines):
+        if '#include' in line:
+            continue
         matches = operator_pattern.finditer(line)
         for match in matches:
             start_index, end_index = match.span()
@@ -35,6 +37,8 @@ def find_break_and_continue(file_path):
     break_and_continue_info = []
 
     for line_index, line in enumerate(lines):
+        if '#include' in line:
+            continue
         line = line.strip()
         if line.startswith('break'):
             start_index = line.find('break')
@@ -65,6 +69,8 @@ def find_numbers(file_path):
     number_info = []
 
     for line_index, line in enumerate(lines):
+        if '#include' in line:
+            continue
         matches = re.finditer(r'\b(\d+(\.\d+)?)\b', line)
 
         for match in matches:
@@ -90,6 +96,8 @@ def find_true_false(file_path):
     true_false_info = []
 
     for line_index, line in enumerate(lines):
+        if '#include' in line:
+            continue
         matches = re.finditer(r'\b(true|false)\b', line)
 
         for match in matches:
@@ -104,7 +112,6 @@ def find_true_false(file_path):
             })
 
     return true_false_info
-import re
 
 def find_type_specifiers(file_path):
     with open(file_path, 'r') as file:
@@ -113,6 +120,8 @@ def find_type_specifiers(file_path):
     type_specifier_info = []
 
     for line_index, line in enumerate(lines):
+        if '#include' in line:
+            continue
         matches = re.finditer(r'\b(?:int|char|float|double|long|short|signed|unsigned|void|bool|wchar_t|string)\s*(?:\*+\s*)*\b', line)
 
         for match in matches:
@@ -128,9 +137,6 @@ def find_type_specifiers(file_path):
 
     return type_specifier_info
 
-import re
-
-import re
 
 def find_else_statements(file_path):
     with open(file_path, 'r') as file:
@@ -139,6 +145,8 @@ def find_else_statements(file_path):
     else_info = []
 
     for line_index, line in enumerate(lines):
+        if '#include' in line:
+            continue
         matches = re.finditer(r'\belse(?:\s+if)?\b', line)
 
         for match in matches:
