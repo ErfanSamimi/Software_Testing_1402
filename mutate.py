@@ -97,7 +97,8 @@ class Mutation:
     def check_if_compilable(self, build_path):
         self._check_dir_existence(dir_path=build_path)
         command = f"make -C {build_path}"
-        result = subprocess.run(command, shell=True)
+        with open(os.devnull, 'w') as null_file:
+            result = subprocess.run(command, shell=True, stdout=null_file, stderr=null_file)
         return True if result.returncode == 0 else False
 
     def undo_mutation(self):
