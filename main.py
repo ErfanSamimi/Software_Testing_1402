@@ -1,4 +1,7 @@
 # Software Testing Final Project
+import os
+import subprocess
+
 from find_mutant import *
 from mutate import Mutation
 
@@ -39,8 +42,12 @@ LOOP_CONTROLS_MAPPINGS = {
     'continue': ["", "break"],
 }
 
+total_compilable_mutants = 0
+total_killed_mutants = 0
+
 
 def mutate_the_code(source_code_path, temporary_dir, start_line, start_index, end_index, replace, replaced_str):
+    test_execute_command = "/tmp/test/cmake-gtest-coverage-example/build/tests/poptests"
     m = Mutation(file_path=source_code_path, temp_directory=temporary_dir)
     m.apply_mutation(
         start_line_number=start_line,
@@ -49,12 +56,28 @@ def mutate_the_code(source_code_path, temporary_dir, start_line, start_index, en
         end_index=end_index,
         replace_with=replace
     )
+    is_compilable = m.check_if_compilable(build_dir)
 
     print(
         f"change '{replaced_str}' to '{x}' in line '{start_line}' from index '{start_index}' to index '{end_index}' "
-        f"compile status: {m.check_if_compilable(build_dir)}"
+        f"compile status: {is_compilable}"
     )
+    command = f"{test_execute_command}"
+
+    global total_compilable_mutants
+    global total_killed_mutants
+
+    if is_compilable:
+        total_compilable_mutants += 1
+        with open(os.devnull, 'w') as null_file:
+            result = subprocess.run(command, shell=True, stdout=null_file, stderr=null_file)
+
+        is_killed = False if result.returncode == 0 else True
+        if is_killed:
+            total_killed_mutants += 1
+
     m.undo_mutation()
+
 
 # these values must be changed
 file_path = "/tmp/test/cmake-gtest-coverage-example/vendor/simple_vendor.cpp"
@@ -74,7 +97,9 @@ for mutant in operators:
 
     for x in OPERATOR_MAPPINGS[mutant['operator']]:
         mutate_the_code(
-            file_path, temp_dir, mutant['line_index'], mutant['start_index'], mutant['end_index'], x, mutant['operator']
+            file_path, temp_dir, mutant['line_index'], mutant['start_index'], mutant['end_index'], x,
+            mutant['operator'],
+
         )
 
 for mutant in break_and_continue_info:
@@ -116,3 +141,6 @@ for mutant in else_info:
             file_path, temp_dir, mutant['line_index'], mutant['start_index'], mutant['end_index'], x,
             mutant['else_statement']
         )
+
+print(f"total mutants: {total_compilable_mutants}")
+print(f"killed mutants: {total_killed_mutants}")
